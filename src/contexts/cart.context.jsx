@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext,useEffect,useReducer } from "react";
 
 export const addCartItem = (cartItems, productToAdd) => {
   const existingCartItem = cartItems.find(
@@ -47,11 +47,71 @@ const clearCartItem = (cartItems, cartItemToClear) => {
   return cartItems.filter((cartItem) => cartItem.id !== cartItemToClear.id);
 };
 
+const INITIAL_STATE={
+  isCartOpen: false,
+  cartItems: [],
+  cartCount: 0,
+  cartTotal: 0
+}
+
+export const CART_ACTION_TYPES={
+  IS_CART_OPEN:'IS_CART_OPEN',
+  CART_ITEMS:'CART_ITEMS',
+  CART_COUNT:'CART_COUNT',
+  CART_TOTAL:'CART-TOTAL'
+}
+
+export const cartReducer=(state,action)=>{
+  console.log('dispatched');
+  console.log(action)
+  const {type,payload}=action;
+  switch(type){
+    case CART_ACTION_TYPES.IS_CART_OPEN:return{
+      ...state,
+      isCartOpen:payload
+    }
+    case CART_ACTION_TYPES.CART_ITEMS:return{
+      ...state,
+      cartItems:payload
+    }
+
+    case CART_ACTION_TYPES.CART_COUNT:return{
+      ...state,
+      cartCount:payload
+    }
+
+    case CART_ACTION_TYPES.CART_TOTAL:return{
+      ...state,
+      cartTotal:payload
+    }
+
+    default:
+      throw new Error(`unhandled type ${type} in cartReducer`)
+  }
+
+}
+
 export const CartProvider = ({ children }) => {
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [cartItems, setCartItems] = useState([]);
-  const [cartCount, setCartCount] = useState(0);
-  const [cartTotal,setCartTotal] = useState(0);
+
+  const [{cartItems,cartCount,cartTotal,isCartOpen},dispatch]=useReducer(cartReducer,INITIAL_STATE);
+  
+  const setIsCartOpen=(val)=>{
+    dispatch({type:CART_ACTION_TYPES.IS_CART_OPEN,payload:val})
+  }
+
+  const setCartItems=(val)=>{
+    dispatch({type:CART_ACTION_TYPES.CART_ITEMS,payload:val})
+  }
+
+  
+  const setCartCount=(val)=>{
+    dispatch({type:CART_ACTION_TYPES.CART_COUNT,payload:val})
+  }
+
+  
+  const setCartTotal=(val)=>{
+    dispatch({type:CART_ACTION_TYPES.CART_TOTAL,payload:val})
+  }
 
   useEffect(() => {
     const newCartCount = cartItems.reduce(
